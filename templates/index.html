@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greeting</title>
+    <style>
+    .button {
+      background-color: #008CBA; /* Blue */
+      border: none;
+      color: white;
+      width:50%;
+      text-align: center;
+      text-decoration: none;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .selectbox{
+      background-color:black;
+    }
+    </style>
+</head>
+
+<body>
+    Field1: <input type="text" id="field1" value="Hello World!"><br>
+    Field2: <input type="text" id="field2"><br><br>
+
+    <p style="color:white;font-size:16px;">
+        Current ({{sensor}}): {{ value }}{{unit}}
+    </p>
+
+    <div style="display:inline-table;">   
+    
+        <select id="SR" name="SR" class="button selectbox">
+          <option value="1s">1s</option>
+          <option value="5s">5s</option>
+          <option value="30s">30s</option>
+        </select>
+
+        <button class="button" onclick="myFunction()">Set</button>
+
+    </div>
+    <script>
+    function myFunction() {
+        document.getElementById("field2").value = document.getElementById("field1").value;
+    }
+    </script>
+</body>
+
+</html>
