@@ -24,29 +24,39 @@
 </head>
 
 <body>
-    Field1: <input type="text" id="field1" value="Hello World!"><br>
-    Field2: <input type="text" id="field2"><br><br>
-
-    <p style="color:white;font-size:16px;">
+    <p id = "p" style="color:white;font-size:16px;">
         Current ({{sensor}}): {{ value }}{{unit}}
     </p>
 
     <div style="display:inline-table;">   
     
         <select id="SR" name="SR" class="button selectbox">
-          <option value="1s">1s</option>
-          <option value="5s">5s</option>
-          <option value="30s">30s</option>
+          <option value="1">1s</option>
+          <option value="5">5s</option>
+          <option value="30">30s</option>
         </select>
 
-        <button class="button" onclick="myFunction()">Set</button>
+        <button class = "button">Set</button>
 
     </div>
+    <div id="div1"><h2>Let jQuery AJAX Change This Text</h2></div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script>
-    function myFunction() {
-        document.getElementById("field2").value = document.getElementById("field1").value;
-    }
+      $(document).ready(function(){
+        $("button").click(function(){
+          var sr = document.getElementById("SR");
+          var srVal = sr.options[sr.selectedIndex].value;
+          var dev = '{{ device }}';
+          var chan = '{{ channel }}';
+          var sen = '{{ sensor }}';
+          $.ajax({url: "/SendMessage/"+srVal+ "/" + dev + "/" + chan +"/sensors/" + sen, success: function(result){
+            $("#div1").html(result);
+          }});
+        });
+      });
     </script>
+
 </body>
 
 </html>
