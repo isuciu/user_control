@@ -10,7 +10,7 @@ counter = -1
 CORS(app)
 connection = psycopg2.connect(user="mainflux",
                                   password="mainflux",
-                                  host="172.18.0.3",
+                                  host="things-db",
                                   port="5432",
                                   database="things")
 cursor = connection.cursor()
@@ -73,4 +73,4 @@ def sendmessage(selectedvalue, publisher, channel, sensor_name):
 		return "Failed setting SR, try again"
 
 if __name__ == '__main__':
-	app.run()
+	app.run(debug=True, host='0.0.0.0')

@@ -1,5 +1,5 @@
-pip3 install Flask
-pip3 install flask-cors
-pip3 install paho-mqtt
-pip3 install psycopg2
+Flask
+flask-cors
+paho-mqtt
+psycopg2
 
