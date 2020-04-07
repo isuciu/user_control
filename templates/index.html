@@ -24,9 +24,6 @@
 </head>
 
 <body>
-    <p id = "p" style="color:white;font-size:16px;">
-        Current ({{sensor}}): {{ value }}{{unit}}
-    </p>
 
     <div style="display:inline-table;">   
     
@@ -36,11 +33,9 @@
           <option value="30">30s</option>
         </select>
 
-        <button class = "button">Set</button>
-
+        <button class = "button" id="SRbtn">Set</button>
+    <div id="div1"></div>
     </div>
-    <div id="div1"><h2>Let jQuery AJAX Change This Text</h2></div>
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script>
       $(document).ready(function(){
@@ -50,11 +45,18 @@
           var dev = '{{ device }}';
           var chan = '{{ channel }}';
           var sen = '{{ sensor }}';
+          var button = document.getElementById(SRbtn);
           $.ajax({url: "/SendMessage/"+srVal+ "/" + dev + "/" + chan +"/sensors/" + sen, success: function(result){
+            if (result == "OK"){
+              $("#SRbtn").css('background-color','green');
+            }
             $("#div1").html(result);
-          }});
+            }});
+
+          setTimeout(function(){ $("#SRbtn").css('background-color','#008CBA');$("#div1").html("");  }, 3000);
         });
       });
+
     </script>
 
 </body>
