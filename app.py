@@ -4,20 +4,30 @@ import psycopg2
 import paho.mqtt.client as mqtt
 import time
 import json
+import os
 
 app = Flask(__name__)
-counter = -1
 CORS(app)
-connection = psycopg2.connect(user="mainflux",
-                                  password="mainflux",
-                                  host="things-db",
-                                  port="5432",
-                                  database="things")
-cursor = connection.cursor()
 
-broker_address= "localhost"
-port = 1883
-           #create new instance
+#Obtain variables
+#mqtt_broker_host = os.environ["MF_USER_CONTROL_MQTT_HOST"]
+#mqtt_port = os.environ["MF_USER_CONTROL_MQTT_PORT"]
+postgres_user = os.environ["MF_USER_CONTROL_POSTGRES_USER"] 
+postgres_password = os.environ["MF_USER_CONTROL_POSTGRES_PASSWORD"] 
+postgres_host = os.environ["MF_USER_CONTROL_POSTGRES_HOST"] # mainflux-things-db
+postgres_port = os.environ["MF_USER_CONTROL_POSTGRES_PORT"] #5432
+postgres_db = os.environ["MF_USER_CONTROL_POSTGRES_DB"] #things
+mqtt_broker_host = "mainflux-mqtt"
+mqtt_port = 1883
+
+
+connection = psycopg2.connect(user=postgres_user,
+                                  password=postgres_password,
+                                  host=postgres_host,
+                                  port=postgres_port,
+                                  database=postgres_db)
+
+cursor = connection.cursor()
 
 def query_db(publisher):
 	postgreSQL_select_Query = "select things.* from things things where things.id='"+ str(publisher)+ "'"
@@ -33,23 +43,18 @@ def query_db(publisher):
 		return thing_id,thing_key
 
 def on_connect(client, userdata, flags, rc):
-	print("inside on connect")
 	if rc == 0:
 		client.connected_flag=True               #Signal connection 
 	else:
 		client.connected_flag=False
                    #attach function to callback
 
-@app.route('/tryingajax/SetSR/<publisher>/<channel>/sensors/<sensor_name>')
-def hello(publisher, channel, sensor_name):
-	global counter, dom
-	counter = counter + 1
-	val = str(counter)
-	un = "s" #seconds
-	return render_template('index.html', device = publisher, channel = channel, sensor=sensor_name,value=val, unit=un)
+@app.route('/control/tryingajax/SetSR/<publisher>/<channel>/sensors/<sensor_name>')
+def mainpage(publisher, channel, sensor_name):
+	return render_template('index.html', device = publisher, channel = channel, sensor=sensor_name)
 
 
-@app.route('/SendMessage/<selectedvalue>/<publisher>/<channel>/sensors/<sensor_name>')
+@app.route('/control/SendMessage/<selectedvalue>/<publisher>/<channel>/sensors/<sensor_name>')
 def sendmessage(selectedvalue, publisher, channel, sensor_name):
 	thing_id, thing_key= query_db(publisher)
 	if (thing_id != 0 and thing_key != 0):
@@ -58,7 +63,7 @@ def sendmessage(selectedvalue, publisher, channel, sensor_name):
 		client.username_pw_set(thing_id, thing_key)    #set username and password
 		client.on_connect=on_connect
 		try:
-			client.connect(broker_address, port=port)
+			client.connect(host=mqtt_broker_host, port=mqtt_port)
 			client.loop_start()
 			topic= "channels/" + str(channel) +  "/control"
 			timestamp = time.time()
@@ -73,4 +78,4 @@ def sendmessage(selectedvalue, publisher, channel, sensor_name):
 		return "Failed setting SR, try again"
 
 if __name__ == '__main__':
-	app.run(debug=True, host='0.0.0.0')
+	app.run(host='0.0.0.0', port=5000)

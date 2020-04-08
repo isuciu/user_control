@@ -2,4 +2,4 @@ Flask
 flask-cors
 paho-mqtt
 psycopg2
-
+uWSGI

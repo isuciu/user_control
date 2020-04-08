@@ -46,7 +46,7 @@
           var chan = '{{ channel }}';
           var sen = '{{ sensor }}';
           var button = document.getElementById(SRbtn);
-          $.ajax({url: "/SendMessage/"+srVal+ "/" + dev + "/" + chan +"/sensors/" + sen, success: function(result){
+          $.ajax({url: "/control/SendMessage/"+srVal+ "/" + dev + "/" + chan +"/sensors/" + sen, success: function(result){
             if (result == "OK"){
               $("#SRbtn").css('background-color','green');
             }
