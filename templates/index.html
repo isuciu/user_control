@@ -35,6 +35,7 @@
 
         <button class = "button" id="SRbtn">Set</button>
     <div id="div1"></div>
+    <div id="div2">{{message}}</div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script>
@@ -49,11 +50,12 @@
           $.ajax({url: "/control/SendMessage/"+srVal+ "/" + dev + "/" + chan +"/sensors/" + sen, success: function(result){
             if (result == "OK"){
               $("#SRbtn").css('background-color','green');
+              $("#div2").html(""); 
             }
             $("#div1").html(result);
             }});
 
-          setTimeout(function(){ $("#SRbtn").css('background-color','#008CBA');$("#div1").html("");  }, 3000);
+          setTimeout(function(){ $("#SRbtn").css('background-color','#008CBA');$("#div1").html(""); }, 3000);
         });
       });
 

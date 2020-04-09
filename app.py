@@ -48,10 +48,14 @@ def on_connect(client, userdata, flags, rc):
 	else:
 		client.connected_flag=False
                    #attach function to callback
+@app.route('/control/SetSR///sensors/') #when there is no data in influxdb
+def initialpage():
+	msg = "Waiting for sensor to initialize" #to send its SR, confirming that is up
+	return render_template('index.html', message=msg)
 
-@app.route('/control/tryingajax/SetSR/<publisher>/<channel>/sensors/<sensor_name>')
+@app.route('/control/SetSR/<publisher>/<channel>/sensors/<sensor_name>')
 def mainpage(publisher, channel, sensor_name):
-	return render_template('index.html', device = publisher, channel = channel, sensor=sensor_name)
+	return render_template('index.html', message= "", device = publisher, channel = channel, sensor=sensor_name)
 
 
 @app.route('/control/SendMessage/<selectedvalue>/<publisher>/<channel>/sensors/<sensor_name>')
