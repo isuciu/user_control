@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Greeting</title>
+    <title>SetSR</title>
     <style>
     .button {
       background-color: #008CBA; /* Blue */
@@ -15,6 +15,7 @@
       text-decoration: none;
       font-size: 16px;
       cursor: pointer;
+      display:inline-block; /*any space between the inline elements will act as a newline and elements will be displayed one under another instead of inline*/
     }
 
     .selectbox{
@@ -25,15 +26,16 @@
 
 <body>
 
-    <div style="display:inline-table;">   
+    <div>   
     
         <select id="SR" name="SR" class="button selectbox">
-          <option value="1">1s</option>
+          <option value="0">OFF</option>
           <option value="5">5s</option>
+          <option value="15">15s</option>
           <option value="30">30s</option>
-        </select>
-
-        <button class = "button" id="SRbtn">Set</button>
+          <option value="60">60s</option>
+          <option value="120">120s</option>
+        </select><button class = "button" id="SRbtn">Set</button>
     <div id="div1"></div>
     <div id="div2">{{message}}</div>
     </div>
