@@ -9,23 +9,7 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-#Obtain variables
-postgres_user = os.environ["MF_USER_CONTROL_POSTGRES_USER"] 
-postgres_password = os.environ["MF_USER_CONTROL_POSTGRES_PASSWORD"] 
-postgres_host = os.environ["MF_USER_CONTROL_POSTGRES_HOST"] # mainflux-things-db
-postgres_port = os.environ["MF_USER_CONTROL_POSTGRES_PORT"] #5432
-postgres_db = os.environ["MF_USER_CONTROL_POSTGRES_DB"] #things
-mqtt_broker_host = "mainflux-mqtt"
-mqtt_port = 1883
 
-
-connection = psycopg2.connect(user=postgres_user,
-                                  password=postgres_password,
-                                  host=postgres_host,
-                                  port=postgres_port,
-                                  database=postgres_db)
-
-cursor = connection.cursor()
 
 def query_db(publisher):
 	postgreSQL_select_Query = "select things.* from things things where things.id='"+ str(publisher)+ "'"
@@ -61,7 +45,7 @@ def calinitialpage():
 	msg = "Waiting for sensor to initialize" #to send its SR, confirming that is up
 	return render_template('calibration-ph.html', message=msg)
 
-@app.route('/control/CAL/<publisher>/<channel>/sensors/<sensor_name>') #NGINX requires "control"
+@app.route('/control/CAL/<publisher>/<channel>/sensors/<sensor_name>')
 def calpage(publisher, channel, sensor_name):
 	if sensor_name == "pH":
 		return render_template('calibration-ph.html', message= "", device = publisher, channel = channel, sensor=sensor_name)
@@ -92,37 +76,39 @@ def sendmessage(selectedvalue, publisher, channel, sensor_name):
 		return "Failed setting SR, try again"
 
 
-
-@app.route('/control/calibration/Set/<db_to_use>/<target_device>/<channel>/sensors/<sensorname>')
+@app.route('/calibration/Set/<db_to_use>/<target_device>/<channel>/sensors/<sensorname>')
 def cal_sensor(db_to_use,target_device,channel,sensorname):
 
 	print("sensor:", sensorname) 
 	print("db:", db_to_use) 
 	print("target dev:", target_device) 
 	print("channel:", channel)
-	thing_id, thing_key= query_db(target_device)
-	if (thing_id != 0 and thing_key != 0):
-		mqtt.Client.connected_flag=False
-		client = mqtt.Client()    
-		client.username_pw_set(thing_id, thing_key)    #set username and password
-		client.on_connect=on_connect
-		try:
-			client.connect(host=mqtt_broker_host, port=mqtt_port)
-			client.loop_start()
-			topic= "channels/" + str(channel) +  "/control" #+"/"+'str(thing_id) #make topic more personal
-			timestamp = time.time()
-			data = {"type": "CAL", "sensor":sensorname, "v":db_to_use, "t":timestamp}
-			client.publish(topic,json.dumps(data)) 
-			client.disconnect()
-			client.loop_stop()
-			return "OK"
-		except:
-			return "Connection to device failed, try again"
-	else:
-		return "Failed calibrating sensor, try again"	
 
+	try:
+		thing_id, thing_key= query_db(target_device)
+		if (thing_id != 0 and thing_key != 0):
+			mqtt.Client.connected_flag=False
+			client = mqtt.Client()    
+			client.username_pw_set(thing_id, thing_key)    #set username and password
+			client.on_connect=on_connect
+			try:
+				client.connect(host=mqtt_broker_host, port=mqtt_port)
+				client.loop_start()
+				topic= "channels/" + str(channel) +  "/control" #+"/"+'str(thing_id) #make topic more personal
+				timestamp = time.time()
+				data = {"type": "CAL", "sensor":sensor, "v":db_to_use, "t":timestamp}
+				client.publish(topic,json.dumps(data)) 
+				client.disconnect()
+				client.loop_stop()
+				return "OK"
+			except:
+				return "Connection to device failed, try again"
+		else:
+			return "Failed calibrating sensor, try again"	
+	except:
+		return "OK"	
 
-@app.route('/control/calibration/Check/<target_device>/<channel>/sensors/<sensorname>')
+@app.route('/calibration/Check/<target_device>/<channel>/sensors/<sensorname>')
 def cal_check(target_device, channel, sensorname):
 	return "OK"#"to be implemented"
 
