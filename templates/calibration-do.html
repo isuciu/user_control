@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CalPH</title>
+    <title>CalDO</title>
     <style>
     .button {
       background-color: #008CBA; /* Blue */
@@ -26,17 +26,21 @@
 
 <body style="background-color:black; color:white;">
 
-    <h1 style="margin-top: 80px">pH Sensor Calibration</h1>
+    <h1 style="margin-top: 80px">Dissolved Oxygen Sensor Calibration</h1>
         
-    <p> Wash the probe with distilled water, then absorb the residual water-drops with paper. Insert the probe into the standard buffer solution of pH 7.0, stir gently, until the values are stable, then press the button below.</p>
-    <button id = "db1button" class = "button" > Record pH 7.0 </button>
+    <p> Prepare two cups of purified water, put one cup in the refrigerator, and one cup to warm up (Do not exceed 40°C, otherwise the probe may be damaged). Use one of the following methods to make saturated oxygen water:</p>
+    <ol>
+      <li>Use a stirrer or an eggbeater to continuously stir for 10 minutes to saturate the dissolved oxygen.</li>
+      <li>Use an air pump to continuously inflate the water for 10 minutes to saturate the dissolved oxygen.</li>
+    </ol>
+    <p> Stop stirring or pumping, and insert the probe after the bubbles disappear, together with the water temperature sensor. After placing the probe, keep stirring slowly while avoiding any bubbles. After the output voltage and temperature is stable, please press the button below.</p>
+    <button id = "db1button" class = "button" > Record high temperature </button>
             <br>
 
-    <p>Wash the probe with distilled water, then absorb the residual water-drops with paper. Insert the probe into the standard buffer solution of pH 4.0, stir gently, until the values are stable, then press the button below.</p>
+    <p>Wash the probe with distilled water, then perform the same operation on the glass of cold water and press the button below. </p>
 
-    <button id = "db2button" class = "button"> Record pH 4.0 </button>
+    <button id = "db2button" class = "button"> Record low temperature </button>
             <p></p>
-
 
     <div id="div2">{{message}}</div>
 

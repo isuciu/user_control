@@ -56,15 +56,23 @@ def mainpage(publisher, channel, sensor_name):
 	return render_template('index.html', message= "", device = publisher, channel = channel, sensor=sensor_name)
 
 
-@app.route('/control/CAL///sensors/') #when there is no data in influxdb, SHOULD SHOW ANOTHER PAGE
+@app.route('/control/CAL///sensors/') #when there is no data in influxdb
 def calinitialpage():
-	msg = "Waiting for sensor to initialize" #to send its SR, confirming that is up
-	return render_template('calibration-ph.html', message=msg)
+	return render_template('calibration-empty.html')
 
 @app.route('/control/CAL/<publisher>/<channel>/sensors/<sensor_name>') #NGINX requires "control"
 def calpage(publisher, channel, sensor_name):
 	if sensor_name == "pH":
 		return render_template('calibration-ph.html', message= "", device = publisher, channel = channel, sensor=sensor_name)
+	elif sensor_name == "Conductivity1":
+		return render_template('calibration-conductivity1.html', message= "", device = publisher, channel = channel, sensor=sensor_name)
+	elif sensor_name == "Conductivity2":
+		return render_template('calibration-conductivity2.html', message= "", device = publisher, channel = channel, sensor=sensor_name)
+	elif sensor_name == "Oxygen":
+		return render_template('calibration-do.html', message= "", device = publisher, channel = channel, sensor=sensor_name)
+	elif sensor_name == "AirCO2":
+		return render_template('calibration-airco2.html', message= "", device = publisher, channel = channel, sensor=sensor_name)
+
 
 
 
@@ -79,7 +87,7 @@ def sendmessage(selectedvalue, publisher, channel, sensor_name):
 		try:
 			client.connect(host=mqtt_broker_host, port=mqtt_port)
 			client.loop_start()
-			topic= "channels/" + str(channel) +  "/control"
+			topic= "channels/" + str(channel) +  "/control/SR/" + str(thing_id)  #only this node will be subscribed to this particular topic
 			timestamp = time.time()
 			data = {"type": "SET_SR", "sensor":sensor_name, "v":selectedvalue, "u":"s", "t":timestamp}
 			client.publish(topic,json.dumps(data)) 
@@ -109,7 +117,7 @@ def cal_sensor(db_to_use,target_device,channel,sensorname):
 		try:
 			client.connect(host=mqtt_broker_host, port=mqtt_port)
 			client.loop_start()
-			topic= "channels/" + str(channel) +  "/control" #+"/"+'str(thing_id) #make topic more personal
+			topic= "channels/" + str(channel) +  "/control/CAL/" + str(thing_id)  #only this node will be subscribed to this particular topic
 			timestamp = time.time()
 			data = {"type": "CAL", "sensor":sensorname, "v":db_to_use, "t":timestamp}
 			client.publish(topic,json.dumps(data)) 
