@@ -256,6 +256,10 @@ def Set_Alarm(channel, sensorname, organization, dashboard_name, user_login, set
 			data['dashboard']['panels'][pan_order]['panels'][0]['alert']['conditions'][0]['evaluator']['params'][0]= float(set_min_value)
 			data['dashboard']['panels'][pan_order]['panels'][0]['alert']['conditions'][0]['evaluator']['params'][1]= float(set_max_value)
 
+			#also change the position of the critical red line
+			data['dashboard']['panels'][pan_order]['panels'][0]['thresholds'][0]['value']= float(set_min_value)
+			data['dashboard']['panels'][pan_order]['panels'][0]['thresholds'][1]['value']= float(set_max_value)
+			
 			print("Uploading dashboard json")
 
 			status, uid = gr._update_existing_dashboard(data)
