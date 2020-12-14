@@ -6,6 +6,7 @@ import time
 import json
 import os
 import grafana_interactions as gr
+import jwt
 
 app = Flask(__name__)
 CORS(app)
@@ -27,6 +28,14 @@ connection = psycopg2.connect(user=postgres_user,
                                   database=postgres_db)
 
 cursor = connection.cursor()
+
+user_connection = psycopg2.connect(user=postgres_user,
+                                  password=postgres_password,
+                                  host="mainflux-users-db",
+                                  port=postgres_port,
+                                  database="users")
+
+user_cursor = user_connection.cursor()
 
 def query_db(publisher):
 	postgreSQL_select_Query = "select things.* from things things where things.id='"+ str(publisher)+ "'"
@@ -51,6 +60,38 @@ def query_channels(channel):
 			print("Entry = ", row, "\n")
 			user_email=row[1]
 		return user_email
+
+def return_channels_list():
+	postgreSQL_select_Query = "select channels.* from channels"
+	cursor.execute(postgreSQL_select_Query)
+	channels_records = cursor.fetchall() 
+	ch_list=[]
+	if channels_records is not None:
+		for row in channels_records:
+			#print("Entry = ", row, "\n")
+			ch=row[0]
+			ch_list.append(ch)
+		return ch_list
+
+def query_db_passwd(email):
+	postgreSQL_select_Query = "select users.* from users where users.email='"+ str(email)+ "'"
+	user_cursor.execute(postgreSQL_select_Query)
+	password_record = user_cursor.fetchall() 
+	passwd= None
+	if password_record is not None:
+		for row in password_record:
+			print("Entry = ", row, "\n")
+			passwd=row[1]
+	return passwd
+
+def update_db_passwd(email, new_hash):
+	#updates the password corresponding to this user with a new one as hash
+	postgreSQL_update_Query = "update users set password='"+ str(new_hash)+ "' where users.email='"+ str(email)+ "'"
+	user_cursor.execute(postgreSQL_update_Query)
+	user_connection.commit()
+	count= user_cursor.rowcount
+	print(count, "Record updated successfully")
+	return count
 
 def on_connect(client, userdata, flags, rc):
 	if rc == 0:
@@ -276,6 +317,36 @@ def Set_Alarm(channel, sensorname, organization, dashboard_name, user_login, set
 	else:
 		return "Invalid channel"
 	
+
+@app.route('/control/RenewAccountPassword/<token>/<identifier>', methods=['GET', 'POST'])
+def RenewAccountPassword(token, identifier):
+	#change mainflux password for this user
+	#this function will be called only if rpi-flaskapp reset has a validated user via email with tokens
+	#token is generated with the rpi db channel id for this user
+	print("reading passed data")
+	try:
+		new_pass = request.get_json()['change'] #hashed password
+		print(new_pass)
+	except Exception as e:
+		print(str(e))
+	status= "failed"
+	channel_list=return_channels_list() #returns all mainflux channels
+	#print(channel_list)
+	matching = [s for s in channel_list if identifier in s]
+	for key in matching:
+		try:
+			email = jwt.decode(token, key=key)['reset_password']
+			print(email)
+			if email == query_channels(key):
+				print("found user, modifying password")
+				count=update_db_passwd(email, new_pass)
+				if count:
+					status = "success"
+		except Exception as e:
+			print(str(e))
+	
+	answer = {'status': status}
+	return json.dumps(answer)
 
 
 @app.route('/control/calibration/Check/<target_device>/<channel>/sensors/<sensorname>')
