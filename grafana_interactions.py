@@ -1,11 +1,13 @@
 """Grafana interaction functions."""
 import requests
 from grafana_api.grafana_face import GrafanaFace
+import os
 
 # Login to the grafana api through the library
 # TODO: user and password? better via httpS?
-grafana_api = GrafanaFace(auth=('admin', 'admin'), host='mainflux-grafana', port=3000)
-host = 'http://admin:admin@mainflux-grafana:3000'
+grafana_port = os.environ["MF_USER_CONTROL_GRAFANA_PORT"] #3001
+grafana_api = GrafanaFace(auth=('admin', 'admin'), host='mainflux-grafana', port=grafana_port)
+host = 'http://admin:admin@mainflux-grafana:'+str(grafana_port)
 
 
 def _generic_get(url_):
@@ -311,6 +313,7 @@ def _get_dashboard_json(dash_title, org):
         data = response.json()
         #print("************************************")
         #print(data['dashboard']['panels'])
+        print('OK')
         return data
     else:
         print("get dash json not working")
