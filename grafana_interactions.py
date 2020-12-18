@@ -4,10 +4,15 @@ from grafana_api.grafana_face import GrafanaFace
 import os
 
 # Login to the grafana api through the library
-# TODO: user and password? better via httpS?
+
 grafana_port = os.environ["MF_USER_CONTROL_GRAFANA_PORT"] #3001
-grafana_api = GrafanaFace(auth=('admin', 'admin'), host='mainflux-grafana', port=grafana_port)
-host = 'http://admin:admin@mainflux-grafana:'+str(grafana_port)
+grafana_admin_name = os.environ["MF_USER_CONTROL_GRAFANA_ADMIN_NAME"] #admin
+grafana_admin_pass = os.environ["MF_USER_CONTROL_GRAFANA_ADMIN_PASS"] #admin
+#grafana_port = 3001
+#grafana_admin_name = "admin"
+#grafana_admin_pass = "admin"
+grafana_api = GrafanaFace(auth=(grafana_admin_name, grafana_admin_pass), host='mainflux-grafana', port=grafana_port)
+host = 'http://'+ grafana_admin_name + ':' + grafana_admin_pass + '@mainflux-grafana:'+str(grafana_port)
 
 
 def _generic_get(url_):
@@ -190,7 +195,8 @@ def update_preferences_user(dash_id):
 
 
 # DATASOURCES
-def _create_datasource(name, database, admin_name, admin_pass):
+def _create_datasource(name, database):
+    global grafana_admin_name, grafana_admin_pass
     # https://community.influxdata.com/t/cannot-connect-to-influx-datasource-from-grafana/8048/2
     url = host + '/api/datasources'
     data = {
@@ -198,8 +204,8 @@ def _create_datasource(name, database, admin_name, admin_pass):
         "type": "influxdb",
         "url": "http://influxdb:8086",
         "access": "proxy",  # direct, proxy
-        "password": admin_pass,
-        "user": admin_name,
+        "password": grafana_admin_pass,
+        "user": grafana_admin_name,
         "database": database,
         "isDefault": True,
         "jsonData": {"httpMode": "GET"}

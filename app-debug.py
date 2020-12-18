@@ -6,6 +6,7 @@ import time
 import json
 import os
 import grafana_interactions as gr
+import grafana_bootstrap
 
 app = Flask(__name__)
 CORS(app)
@@ -304,7 +305,36 @@ def RenewAccountPassword(token, identifier):
 	answer = {'status': status}
 	return json.dumps(answer)
 
+@app.route('/control/grafana', methods=['GET', 'POST'])
+def BootstrapGrafana():
+	#this function is called by the rpi-flaskapp to instantiate grafana for a new user
+	#user email and password are carried in json, exactly as in mainflux account creation
+	#it should return success/failed
+	try:
+		email = request.get_json()['email']
+		password = request.get_json()['password']
+		name = request.get_json()['name']
+		organization =  request.get_json()['organization']
+		channel_id = request.get_json()['channel_id']
+	except Exception as e:
+		print(str(e))
+	
+	status=grafana_bootstrap.bootstrap(name, organization, email, password, channel_id)
+	answer = {'status': status}
+	return json.dumps(answer)
 
+@app.route('/control/grafana/dash_update', methods=['GET', 'POST'])
+def UpdateDashboardGrafana():
+	#this function is called by the rpi-flaskapp to update the user dashboard to the last version
+	#(if its the case)
+	try:
+		organization =  request.get_json()['organization']
+	except Exception as e:
+		print(str(e))
+	
+	status=grafana_bootstrap.updateDashboard(organization)
+	answer = {'status': status}
+	return json.dumps(answer)
 @app.route('/calibration/Check/<target_device>/<channel>/sensors/<sensorname>')
 def cal_check(target_device, channel, sensorname):
 	return "OK"#"to be implemented"
