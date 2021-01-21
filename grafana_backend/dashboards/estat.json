@@ -634,7 +634,7 @@
       "timeShift": null,
       "title": "Sampling Rate",
       "type": "ryantxu-ajax-panel",
-      "url": "http://127.0.0.1/control/SetSR/$Publisher/$Topic/sensors/$Sensors",
+      "url": "https://127.0.0.1/control/SetSR/$Publisher/$Topic/sensors/$Sensors",
       "withCredentials": false
     }
   ],

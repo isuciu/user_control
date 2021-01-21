@@ -425,7 +425,7 @@
           "timeShift": null,
           "title": "Set Alarm Limits",
           "type": "ryantxu-ajax-panel",
-          "url": "http://127.0.0.1/control/SetAlarm/$Topic/sensors/Temperature-S/${__org.name}/$__dashboard/${__user.login} ",
+          "url": "https://127.0.0.1/control/SetAlarm/$Topic/sensors/Temperature-S/${__org.name}/$__dashboard/${__user.login} ",
           "withCredentials": false
         }
       ],
@@ -701,7 +701,7 @@
           "timeShift": null,
           "title": "Set Alarm Limits",
           "type": "ryantxu-ajax-panel",
-          "url": "http://127.0.0.1/control/SetAlarm/$Topic/sensors/AirCO2/${__org.name}/$__dashboard/${__user.login} ",
+          "url": "https://127.0.0.1/control/SetAlarm/$Topic/sensors/AirCO2/${__org.name}/$__dashboard/${__user.login} ",
           "withCredentials": false
         }
       ],
@@ -975,7 +975,7 @@
           "timeShift": null,
           "title": "Set Alarm Limits",
           "type": "ryantxu-ajax-panel",
-          "url": "http://127.0.0.1/control/SetAlarm/$Topic/sensors/WaterLevel/${__org.name}/$__dashboard/${__user.login} ",
+          "url": "https://127.0.0.1/control/SetAlarm/$Topic/sensors/WaterLevel/${__org.name}/$__dashboard/${__user.login} ",
           "withCredentials": false
         }
       ],
@@ -1249,7 +1249,7 @@
           "timeShift": null,
           "title": "Set Alarm Limits",
           "type": "ryantxu-ajax-panel",
-          "url": "http://127.0.0.1/control/SetAlarm/$Topic/sensors/Oxygen/${__org.name}/$__dashboard/${__user.login} ",
+          "url": "https://127.0.0.1/control/SetAlarm/$Topic/sensors/Oxygen/${__org.name}/$__dashboard/${__user.login} ",
           "withCredentials": false
         }
       ],
@@ -1523,7 +1523,7 @@
           "timeShift": null,
           "title": "Set Alarm Limits",
           "type": "ryantxu-ajax-panel",
-          "url": "http://127.0.0.1/control/SetAlarm/$Topic/sensors/AtmosphericTemp/${__org.name}/$__dashboard/${__user.login} ",
+          "url": "https://127.0.0.1/control/SetAlarm/$Topic/sensors/AtmosphericTemp/${__org.name}/$__dashboard/${__user.login} ",
           "withCredentials": false
         }
       ],
@@ -1797,7 +1797,7 @@
           "timeShift": null,
           "title": "Set Alarm Limits",
           "type": "ryantxu-ajax-panel",
-          "url": "http://127.0.0.1/control/SetAlarm/$Topic/sensors/Conductivity2/${__org.name}/$__dashboard/${__user.login} ",
+          "url": "https://127.0.0.1/control/SetAlarm/$Topic/sensors/Conductivity2/${__org.name}/$__dashboard/${__user.login} ",
           "withCredentials": false
         }
       ],
@@ -2071,7 +2071,7 @@
           "timeShift": null,
           "title": "Set Alarm Limits",
           "type": "ryantxu-ajax-panel",
-          "url": "http://127.0.0.1/control/SetAlarm/$Topic/sensors/Conductivity1/${__org.name}/$__dashboard/${__user.login} ",
+          "url": "https://127.0.0.1/control/SetAlarm/$Topic/sensors/Conductivity1/${__org.name}/$__dashboard/${__user.login} ",
           "withCredentials": false
         }
       ],
@@ -2345,7 +2345,7 @@
           "timeShift": null,
           "title": "Set Alarm Limits",
           "type": "ryantxu-ajax-panel",
-          "url": "http://127.0.0.1/control/SetAlarm/$Topic/sensors/Turbidity/${__org.name}/$__dashboard/${__user.login} ",
+          "url": "https://127.0.0.1/control/SetAlarm/$Topic/sensors/Turbidity/${__org.name}/$__dashboard/${__user.login} ",
           "withCredentials": false
         }
       ],
@@ -2619,7 +2619,7 @@
           "timeShift": null,
           "title": "Set Alarm Limits",
           "type": "ryantxu-ajax-panel",
-          "url": "http://127.0.0.1/control/SetAlarm/$Topic/sensors/pH/${__org.name}/$__dashboard/${__user.login} ",
+          "url": "https://127.0.0.1/control/SetAlarm/$Topic/sensors/pH/${__org.name}/$__dashboard/${__user.login} ",
           "withCredentials": false
         }
       ],
@@ -2893,7 +2893,7 @@
           "timeShift": null,
           "title": "Set Alarm Limits",
           "type": "ryantxu-ajax-panel",
-          "url": "http://127.0.0.1/control/SetAlarm/$Topic/sensors/Humidity/${__org.name}/$__dashboard/${__user.login} ",
+          "url": "https://127.0.0.1/control/SetAlarm/$Topic/sensors/Humidity/${__org.name}/$__dashboard/${__user.login} ",
           "withCredentials": false
         }
       ],
@@ -3167,7 +3167,7 @@
           "timeShift": null,
           "title": "Set Alarm Limits",
           "type": "ryantxu-ajax-panel",
-          "url": "http://127.0.0.1/control/SetAlarm/$Topic/sensors/Temperature-D/${__org.name}/$__dashboard/${__user.login} ",
+          "url": "https://127.0.0.1/control/SetAlarm/$Topic/sensors/Temperature-D/${__org.name}/$__dashboard/${__user.login} ",
           "withCredentials": false
         }
       ],
