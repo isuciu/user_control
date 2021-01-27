@@ -340,5 +340,31 @@ def cal_check(target_device, channel, sensorname):
 	return "OK"#"to be implemented"
 
 
+@app.route('/control/resetpassword/sendmail', methods=['GET', 'POST'])
+def SendResetEmail():
+	#this function is called by the rpi-flaskapp to update the send password reset email
+	print("reading passed data")
+
+	try:
+		email = request.get_json()['email'] 
+		token = request.get_json()['token']
+		name = request.get_json()['name']
+	except Exception as e:
+		print(str(e))
+	status= "failed"
+	try:
+		msg = Message()
+		msg.subject = "Reset your ADO-node password"
+		msg.recipients = [email] #converts to list
+		msg.html = render_template('reset_email.html', name=name, token=token)
+		mail.send(msg)
+		status = "success"
+	except Exception as e:
+		print(str(e))
+
+	answer = {'status': status}
+	return json.dumps(answer)
+
+
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=5000)

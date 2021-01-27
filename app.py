@@ -8,6 +8,7 @@ import os
 import grafana_interactions as gr
 import grafana_bootstrap
 import jwt
+from flask_mail import Message, Mail
 
 app = Flask(__name__)
 CORS(app)
@@ -21,6 +22,17 @@ postgres_db = os.environ["MF_USER_CONTROL_POSTGRES_DB"] #things
 mqtt_broker_host = "mainflux-mqtt"
 mqtt_port = 1883
 
+
+# Email Config
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USERNAME'] = os.environ['MF_USER_CONTROL_MAIL_USERNAME'] #"@gmail.com"
+app.config['MAIL_PASSWORD'] = os.environ['MF_USER_CONTROL_MAIL_PASSWORD']
+app.config['MAIL_DEFAULT_SENDER'] = ("ADO-RECOVERY", app.config['MAIL_USERNAME'])
+
+mail = Mail()
+mail.init_app(app)
 
 connection = psycopg2.connect(user=postgres_user,
                                   password=postgres_password,
@@ -380,6 +392,29 @@ def UpdateDashboardGrafana():
 	answer = {'status': status}
 	return json.dumps(answer)
 
+@app.route('/control/resetpassword/sendmail', methods=['GET', 'POST'])
+def SendResetEmail():
+	#this function is called by the rpi-flaskapp to update the send password reset email
+	try:
+		email = request.get_json()['email'] 
+		token = request.get_json()['token']
+		name = request.get_json()['name']
+	except Exception as e:
+		print("Error when retrieving variables:", str(e))
+	status= "failed"
+	pageURL="https://localhost:5000/password_reset_code/"+str(token)
+	try:
+		msg = Message()
+		msg.subject = "Reset your ADO-node password"
+		msg.recipients = [email] #converts to list
+		msg.html = render_template('reset-email.html', name=name, pageURL=pageURL)
+		mail.send(msg)
+		status = "success"
+	except Exception as e:
+		print("Error when sending email: ",str(e))
+
+	answer = {'status': status}
+	return json.dumps(answer)
 
 @app.route('/control/calibration/Check/<target_device>/<channel>/sensors/<sensorname>')
 def cal_check(target_device, channel, sensorname):
