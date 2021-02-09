@@ -8,7 +8,7 @@ def load_json(path):
     return data_json
 
 
-def bootstrap(name, organization, email, password, channel_id):
+def bootstrap(name, organization, email, password, channel_id, http_protocol, server_ip):
     """
     This method is only accessed if organization not registered yet in Grafana
     :param name:
@@ -34,17 +34,9 @@ def bootstrap(name, organization, email, password, channel_id):
 
     # Grafana data
     # TODO load all files in folder to list
-    try:
-        noti_json = load_json('grafana_backend/alert_channels/slack.json')
-        num_dashs = 5
-        dash_pr_json = load_json('grafana_backend/dashboards/principal.json')
-        dash_ag_json = load_json('grafana_backend/dashboards/agregat.json')
-        dash_es_json = load_json('grafana_backend/dashboards/estat.json')
-        dash_al_json = load_json('grafana_backend/dashboards/alertes.json')
-        dash_ca_json = load_json('grafana_backend/dashboards/calibration.json')
-    except:
-        error = "Error when loading json files"
-        return error
+    num_dashs = 5
+    dash_pr_json, dash_ag_json, dash_es_json, dash_al_json, dash_ca_json = update_ajax_urls(http_protocol, server_ip)
+    noti_json = load_json('grafana_backend/alert_channels/slack.json')
 
     # --- Provisioning
 
@@ -109,13 +101,10 @@ def bootstrap(name, organization, email, password, channel_id):
         error="Error when creating and updating the new user"
         return error
 
-def updateDashboard(organization):
+def updateDashboard(organization, http_protocol, server_ip):
     try:
-        num_dashs = 4
-        dash_pr_json = load_json('grafana_backend/dashboards/principal.json')
-        dash_ag_json = load_json('grafana_backend/dashboards/agregat.json')
-        dash_es_json = load_json('grafana_backend/dashboards/estat.json')
-        dash_al_json = load_json('grafana_backend/dashboards/alertes.json')
+        num_dashs = 5
+        dash_pr_json, dash_ag_json, dash_es_json, dash_al_json, dash_ca_json = update_ajax_urls(http_protocol, server_ip)
 
         gr._change_current_organization_to(organization)
 
@@ -125,9 +114,61 @@ def updateDashboard(organization):
         dash_ids.append(gr._create_dashboard(dash_ag_json))
         dash_ids.append(gr._create_dashboard(dash_es_json))
         dash_ids.append(gr._create_dashboard(dash_al_json))
+        dash_ids.append(gr._create_dashboard(dash_ca_json))
 
         # Load preferences
         gr.update_preferences_org(dash_ids[0])
         return 'success'
-    except:
+    except Exception as e:
+        print(str(e))
         return 'Something went wrong, Try again later'
+
+def update_ajax_urls(http_protocol, server_ip):
+    print("protocol", http_protocol)
+    print("server_ip", server_ip)
+    try:
+        dash_pr_json = load_json('grafana_backend/dashboards/principal.json')
+        dash_ag_json = load_json('grafana_backend/dashboards/agregat.json')
+        dash_es_json = load_json('grafana_backend/dashboards/estat.json')
+        dash_al_json = load_json('grafana_backend/dashboards/alertes.json')
+        dash_ca_json = load_json('grafana_backend/dashboards/calibration.json')
+    except:
+        error = "Error when loading json files"
+        print(error)
+        return error
+
+    # change ajax url to be up to date with current server
+    #estat dash, has templating over sensors
+    try:
+        estat_url = http_protocol + "://" + server_ip + "/control/SetSR/$Publisher/$Topic/sensors/$Sensor"
+        dash_es_json["panels"][3]["panels"][1]["url"] = estat_url  #!!!all "panels" not collapsed
+    except:
+        print("error updating estat dash")
+
+    #alertas, hardcoded dashboard, no templating
+    try:
+        dash_al_json["panels"][2]["panels"][1]["url"] = http_protocol + "://" + server_ip + "/control/SetAlarm/$Topic/sensors/Temperature-S/${__org.name}/$__dashboard/${__user.login}"
+        dash_al_json["panels"][3]["panels"][1]["url"] = http_protocol + "://" + server_ip + "/control/SetAlarm/$Topic/sensors/AirCO2/${__org.name}/$__dashboard/${__user.login}"
+        dash_al_json["panels"][4]["panels"][1]["url"] = http_protocol + "://" + server_ip + "/control/SetAlarm/$Topic/sensors/WaterLevel/${__org.name}/$__dashboard/${__user.login}"
+        dash_al_json["panels"][5]["panels"][1]["url"] = http_protocol + "://" + server_ip + "/control/SetAlarm/$Topic/sensors/Oxygen/${__org.name}/$__dashboard/${__user.login}"
+        dash_al_json["panels"][6]["panels"][1]["url"] = http_protocol + "://" + server_ip + "/control/SetAlarm/$Topic/sensors/AtmosphericTemp/${__org.name}/$__dashboard/${__user.login}"
+        dash_al_json["panels"][7]["panels"][1]["url"] = http_protocol + "://" + server_ip + "/control/SetAlarm/$Topic/sensors/Conductivity2/${__org.name}/$__dashboard/${__user.login}"
+        dash_al_json["panels"][8]["panels"][1]["url"] = http_protocol + "://" + server_ip + "/control/SetAlarm/$Topic/sensors/Conductivity1/${__org.name}/$__dashboard/${__user.login}"
+        dash_al_json["panels"][9]["panels"][1]["url"] = http_protocol + "://" + server_ip + "/control/SetAlarm/$Topic/sensors/Turbidity/${__org.name}/$__dashboard/${__user.login}"
+        dash_al_json["panels"][10]["panels"][1]["url"] = http_protocol + "://" + server_ip + "/control/SetAlarm/$Topic/sensors/pH/${__org.name}/$__dashboard/${__user.login}"
+        dash_al_json["panels"][11]["panels"][1]["url"] = http_protocol + "://" + server_ip + "/control/SetAlarm/$Topic/sensors/Humidity/${__org.name}/$__dashboard/${__user.login}"
+        dash_al_json["panels"][12]["panels"][1]["url"] = http_protocol + "://" + server_ip + "/control/SetAlarm/$Topic/sensors/Temperature-D/${__org.name}/$__dashboard/${__user.login}"
+    except:
+        print("error updating alertes dash")
+
+    #calibration
+    try:
+        dash_ca_json["panels"][0]["panels"][0]["url"] = http_protocol + "://" + server_ip + "/control/CAL/$Publisher/$Topic/sensors/AirCO2"
+        dash_ca_json["panels"][1]["panels"][0]["url"] = http_protocol + "://" + server_ip + "/control/CAL/$Publisher/$Topic/sensors/Oxygen"
+        dash_ca_json["panels"][2]["panels"][0]["url"] = http_protocol + "://" + server_ip + "/control/CAL/$Publisher/$Topic/sensors/Conductivity2"
+        dash_ca_json["panels"][3]["panels"][0]["url"] = http_protocol + "://" + server_ip + "/control/CAL/$Publisher/$Topic/sensors/Conductivity1"
+        dash_ca_json["panels"][4]["panels"][0]["url"] = http_protocol + "://" + server_ip + "/control/CAL/$Publisher/$Topic/sensors/pH"
+    except:
+        print("error updating calibration dash")
+   
+    return dash_pr_json, dash_ag_json, dash_es_json, dash_al_json, dash_ca_json

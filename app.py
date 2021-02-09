@@ -22,6 +22,8 @@ postgres_db = os.environ["MF_USER_CONTROL_POSTGRES_DB"] #things
 mqtt_broker_host = "mainflux-mqtt"
 mqtt_port = 1883
 
+http_protocol = os.environ["MF_AJAX_HTTP_PROTOCOL"] 
+server_ip = os.environ["MF_AJAX_SERVER_IP"] 
 
 # Email Config
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -363,6 +365,8 @@ def RenewAccountPassword(token, identifier):
 
 @app.route('/control/grafana', methods=['GET', 'POST'])
 def BootstrapGrafana():
+	global http_protocol, server_ip
+
 	#this function is called by the rpi-flaskapp to instantiate grafana for a new user
 	#user email and password are carried in json, exactly as in mainflux account creation
 	#it should return success/failed
@@ -375,12 +379,13 @@ def BootstrapGrafana():
 	except Exception as e:
 		print(str(e))
 	
-	status=grafana_bootstrap.bootstrap(name, organization, email, password, channel_id)
+	status=grafana_bootstrap.bootstrap(name, organization, email, password, channel_id, http_protocol, server_ip)
 	answer = {'status': status}
 	return json.dumps(answer)
 
 @app.route('/control/grafana/dash_update', methods=['GET', 'POST'])
 def UpdateDashboardGrafana():
+	global http_protocol, server_ip
 	#this function is called by the rpi-flaskapp to update the user dashboard to the last version
 	#(if its the case)
 	try:
@@ -388,7 +393,7 @@ def UpdateDashboardGrafana():
 	except Exception as e:
 		print(str(e))
 	
-	status=grafana_bootstrap.updateDashboard(organization)
+	status=grafana_bootstrap.updateDashboard(organization, http_protocol, server_ip)
 	answer = {'status': status}
 	return json.dumps(answer)
 
