@@ -140,7 +140,7 @@ def update_ajax_urls(http_protocol, server_ip):
     # change ajax url to be up to date with current server
     #estat dash, has templating over sensors
     try:
-        estat_url = http_protocol + "://" + server_ip + "/control/SetSR/$Publisher/$Topic/sensors/$Sensor"
+        estat_url = http_protocol + "://" + server_ip + "/control/SetSR/$Publisher/$Topic/sensors/$Sensors"
         dash_es_json["panels"][3]["panels"][1]["url"] = estat_url  #!!!all "panels" not collapsed
     except:
         print("error updating estat dash")
