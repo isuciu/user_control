@@ -315,6 +315,12 @@ def Set_Alarm(channel, sensorname, organization, dashboard_name, user_login, set
 			#also change the position of the critical red line
 			data['dashboard']['panels'][pan_order]['panels'][0]['thresholds'][0]['value']= float(set_min_value)
 			data['dashboard']['panels'][pan_order]['panels'][0]['thresholds'][1]['value']= float(set_max_value)
+
+			#also change the yaxes min and max values which are set to [0,40] by default. +/- 10% of the interval
+			interval = float(set_max_value) - float(set_min_value)
+			data['dashboard']['panels'][pan_order]['panels'][0]['yaxes'][0]['min']= float(set_min_value) - interval/10
+			data['dashboard']['panels'][pan_order]['panels'][0]['yaxes'][0]['max']= float(set_max_value) + interval/10
+
 			
 			print("Uploading dashboard json")
 
@@ -324,10 +330,13 @@ def Set_Alarm(channel, sensorname, organization, dashboard_name, user_login, set
 			# html file for setting alarms
 			# upload code to github and dockerhub and mainflux docker
 			if status == "success":
+				print("the alarm was correctly set")
 				return "OK"
 			else:
+				print("unable to set alarm", str(status))
 				return "Unable to set alarm"
-		except:
+		except Exception as e:
+			print(str(e))
 			return "Something went wrong when querying the alarm"
 	else:
 		return "Invalid channel"

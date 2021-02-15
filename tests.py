@@ -46,3 +46,23 @@ try:
     dash_ca_json[panels][4][panels][0][url] = http_protocol + "://" + server_ip + "/control/CAL/$Publisher/$Topic/sensors/pH"
 except:
     print("error updating calibration dash")
+
+
+try:
+    data = dash_al_json
+    set_min_value = 400
+    set_max_value = 600
+    data['panels'][2]['panels'][0]['alert']['conditions'][0]['evaluator']['params'][0]= float(set_min_value)
+    data['panels'][2]['panels'][0]['alert']['conditions'][0]['evaluator']['params'][1]= float(set_max_value)
+
+            #also change the position of the critical red line
+    data['panels'][2]['panels'][0]['thresholds'][0]['value']= float(set_min_value)
+    data['panels'][2]['panels'][0]['thresholds'][1]['value']= float(set_max_value)
+
+    #also change the yaxes min and max values which are set to [0,40] by default. +/- 10% of the interval
+    interval = set_max_value - set_min_value
+    data['panels'][2]['panels'][0]['yaxes'][0]['min']= float(set_min_value - interval/10)
+    data['panels'][2]['panels'][0]['yaxes'][0]['max']= float(set_max_value + interval/10)
+    print ("all ok with setting alerts")
+except:
+    print("sth went wrong")
