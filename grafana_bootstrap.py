@@ -163,11 +163,11 @@ def update_ajax_urls(http_protocol, server_ip):
 
     #calibration
     try:
-        dash_ca_json["panels"][0]["panels"][0]["url"] = http_protocol + "://" + server_ip + "/control/CAL/$Publisher/$Topic/sensors/AirCO2"
-        dash_ca_json["panels"][1]["panels"][0]["url"] = http_protocol + "://" + server_ip + "/control/CAL/$Publisher/$Topic/sensors/Oxygen"
-        dash_ca_json["panels"][2]["panels"][0]["url"] = http_protocol + "://" + server_ip + "/control/CAL/$Publisher/$Topic/sensors/Conductivity2"
-        dash_ca_json["panels"][3]["panels"][0]["url"] = http_protocol + "://" + server_ip + "/control/CAL/$Publisher/$Topic/sensors/Conductivity1"
-        dash_ca_json["panels"][4]["panels"][0]["url"] = http_protocol + "://" + server_ip + "/control/CAL/$Publisher/$Topic/sensors/pH"
+        dash_ca_json["panels"][1]["panels"][0]["url"] = http_protocol + "://" + server_ip + "/control/CAL/$Publisher/$Topic/sensors/AirCO2"
+        dash_ca_json["panels"][2]["panels"][0]["url"] = http_protocol + "://" + server_ip + "/control/CAL/$Publisher/$Topic/sensors/Oxygen"
+        dash_ca_json["panels"][3]["panels"][0]["url"] = http_protocol + "://" + server_ip + "/control/CAL/$Publisher/$Topic/sensors/Conductivity2"
+        dash_ca_json["panels"][4]["panels"][0]["url"] = http_protocol + "://" + server_ip + "/control/CAL/$Publisher/$Topic/sensors/Conductivity1"
+        dash_ca_json["panels"][5]["panels"][0]["url"] = http_protocol + "://" + server_ip + "/control/CAL/$Publisher/$Topic/sensors/pH"
     except:
         print("error updating calibration dash")
    
