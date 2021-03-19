@@ -101,11 +101,15 @@ def query_db_passwd(email):
 
 def update_db_passwd(email, new_hash):
 	#updates the password corresponding to this user with a new one as hash
-	postgreSQL_update_Query = "update users set password='"+ str(new_hash)+ "' where users.email='"+ str(email)+ "'"
-	user_cursor.execute(postgreSQL_update_Query)
-	user_connection.commit()
-	count= user_cursor.rowcount
-	print(count, "Record updated successfully")
+	try:
+		postgreSQL_update_Query = "update users set password='"+ str(new_hash)+ "' where users.email='"+ str(email)+ "'"
+		user_cursor.execute(postgreSQL_update_Query)
+		user_connection.commit()
+		count= user_cursor.rowcount
+		print(count, "Record updated successfully")
+	except:
+		user_cursor.execute("ROLLBACK")
+		user_connection.commit()
 	return count
 
 def on_connect(client, userdata, flags, rc):
@@ -413,10 +417,11 @@ def SendResetEmail():
 		email = request.get_json()['email'] 
 		token = request.get_json()['token']
 		name = request.get_json()['name']
+		node_name = request.get_json()['node_name']
 	except Exception as e:
 		print("Error when retrieving variables:", str(e))
 	status= "failed"
-	pageURL="https://localhost:5000/password_reset_code/"+str(token)
+	pageURL="https://"+ str(node_name)+ ".local/password_reset_code/"+str(token)
 	try:
 		msg = Message()
 		msg.subject = "Reset your ADO-node password"
