@@ -52,6 +52,8 @@ user_connection = psycopg2.connect(user=postgres_user,
 
 user_cursor = user_connection.cursor()
 
+dictionary = {}
+
 def query_db(publisher):
 	postgreSQL_select_Query = "select things.* from things things where things.id='"+ str(publisher)+ "'"
 	cursor.execute(postgreSQL_select_Query)
@@ -146,10 +148,8 @@ def calpage(publisher, channel, sensor_name):
 		return render_template('calibration-airco2.html', message= "", device = publisher, channel = channel, sensor=sensor_name)
 
 
-
-
-@app.route('/control/SendMessage/<selectedvalue>/<publisher>/<channel>/sensors/<sensor_name>')
-def sendmessage(selectedvalue, publisher, channel, sensor_name):
+def addToDictionary(publisher):
+	#dictionary["publisher-name"] = {"id":1, "key":2, "mqtt_client":[]}
 	thing_id, thing_key= query_db(publisher)
 	if (thing_id != 0 and thing_key != 0):
 		mqtt.Client.connected_flag=False
@@ -159,42 +159,59 @@ def sendmessage(selectedvalue, publisher, channel, sensor_name):
 		try:
 			client.connect(host=mqtt_broker_host, port=mqtt_port)
 			client.loop_start()
-			topic= "channels/" + str(channel) +  "/control/SR/" + str(thing_id)  #only this node will be subscribed to this particular topic
-			timestamp = time.time()
-			data = {"type": "SET_SR", "sensor":sensor_name, "v":selectedvalue, "u":"s", "t":timestamp}
-			client.publish(topic,json.dumps(data)) 
-			client.disconnect()
-			client.loop_stop()
+			dictionary[publisher]={} #nested dictionary
+			dictionary[publisher]["thing_id"] = thing_id
+			dictionary[publisher]["thing_key"] = thing_key
+			dictionary[publisher]["client"]= client
+			print("OK, added")
+		except:
+			print ("Connection to device failed, try again")
+
+	else:
+		print("Things not found")
+
+@app.route('/control/SendMessage/<selectedvalue>/<publisher>/<channel>/sensors/<sensor_name>')
+def sendmessage(selectedvalue, publisher, channel, sensor_name):
+	if publisher not in dictionary:
+		print("adding to dictionary")
+		addToDictionary(publisher)
+	if publisher in dictionary: 
+		topic= "channels/" + str(channel) +  "/control/SR/" + str(dictionary[publisher]["thing_id"])  #only this node will be subscribed to this particular topic
+		timestamp = time.time()
+		data = {"type": "SET_SR", "sensor":sensor_name, "v":selectedvalue, "u":"s", "t":timestamp}
+		try:
+			dictionary[publisher]["client"].publish(topic,json.dumps(data)) #client
+			#client.disconnect()
+			#client.loop_stop()
+			print("message published")
 			return "OK"
 		except:
-			return "Connection to device failed, try again"
+			print("failed to publish")
+			return "Publish Failed"
+
 	else:
+		print ("overall SR failure")
 		return "Failed setting SR, try again"
 
 
 
 @app.route('/control/calibration/Set/<db_to_use>/<target_device>/<channel>/sensors/<sensorname>')
 def cal_sensor(db_to_use,target_device,channel,sensorname):
-
-	print("sensor:", sensorname) 
-	print("db:", db_to_use) 
-	print("target dev:", target_device) 
-	print("channel:", channel)
-	thing_id, thing_key= query_db(target_device)
-	if (thing_id != 0 and thing_key != 0):
-		mqtt.Client.connected_flag=False
-		client = mqtt.Client()    
-		client.username_pw_set(thing_id, thing_key)    #set username and password
-		client.on_connect=on_connect
+	# device is publisher
+	#print("sensor:", sensorname) 
+	#print("db:", db_to_use) 
+	#print("target dev:", target_device) 
+	#print("channel:", channel)
+	if target_device not in dictionary:
+		addToDictionary(target_device)
+	if target_device in dictionary: 
+		topic= "channels/" + str(channel) +  "/control/CAL/" + str(dictionary[target_device]["thing_id"])  #only this node will be subscribed to this particular topic
+		timestamp = time.time()
+		data = {"type": "CAL", "sensor":sensorname, "v":db_to_use, "t":timestamp}
 		try:
-			client.connect(host=mqtt_broker_host, port=mqtt_port)
-			client.loop_start()
-			topic= "channels/" + str(channel) +  "/control/CAL/" + str(thing_id)  #only this node will be subscribed to this particular topic
-			timestamp = time.time()
-			data = {"type": "CAL", "sensor":sensorname, "v":db_to_use, "t":timestamp}
-			client.publish(topic,json.dumps(data)) 
-			client.disconnect()
-			client.loop_stop()
+			dictionary[target_device]["client"].publish(topic,json.dumps(data)) 
+			#client.disconnect()
+			#client.loop_stop()
 			return "OK"
 		except:
 			return "Connection to device failed, try again"
