@@ -66,9 +66,9 @@ def query_db(publisher):
 		return thing_id,thing_key
 
 def query_channels(channel):
-	postgreSQL_select_Query = "select channels.* from channels where channels.id='"+ str(channel)+ "'"
+	postgreSQL_select_Query = "select channels.* from channels where channels.id='"+ str(channel)+ " LIMIT 1'"
 	cursor.execute(postgreSQL_select_Query)
-	channels_records = cursor.fetchall() 
+	channels_records = cursor.fetchone() 
 	user_email=None
 	if channels_records is not None:
 		for row in channels_records:
@@ -232,22 +232,25 @@ def alarmpage(channel, sensorname, organization, dashboard_name, user_login):
 		message = "Invalid sensor name" #will appear in div
 		return render_template('alarm.html', message= message, sensor=sensorname, min_val="None", max_val = "None" , channel=channel,
 			 organization=organization, dashboard_name=dashboard_name, user_login=user_login)
-	try:
-		user_email = query_channels(channel)
-	except:
-		message = "Db Query error"
-		return render_template('alarm.html', message= message, sensor=sensorname, min_val = "None", max_val= "None", channel=channel,
-			 organization=organization, dashboard_name=dashboard_name, user_login=user_login)
-
-	if user_email is not None: #so channel exists
+	#try:
+	#	start_time = time.time()
+	#	user_email = query_channels(channel)
+	#	print("--- %s seconds query_channels ---" % (time.time() - start_time))
+	#except:
+	#	message = "Db Query error"
+	#	return render_template('alarm.html', message= message, sensor=sensorname, min_val = "None", max_val= "None", channel=channel,
+	#		 organization=organization, dashboard_name=dashboard_name, user_login=user_login)
+	user_email = None
+	if user_email is None: #so channel exists
 		try:
+			start_time =  time.time()
 			#will extract the json definition of this particular dashboard
 			#this fc already switches organization
 			print("Obtaining dashboard json")  
 			data=gr._get_dashboard_json(dashboard_name, organization) #collapsed has to be True for all rows!
 			crt_min = data['dashboard']['panels'][pan_order]['panels'][0]['alert']['conditions'][0]['evaluator']['params'][0]
 			crt_max = data['dashboard']['panels'][pan_order]['panels'][0]['alert']['conditions'][0]['evaluator']['params'][1]
-
+			print("--- %s seconds _get_dashboard_json---" % (time.time() - start_time))
 			return render_template('alarm.html', message= "", sensor=sensorname, min_val=crt_min, max_val = crt_max, channel=channel,
 			 organization=organization, dashboard_name=dashboard_name, user_login=user_login)
 		except:
@@ -298,21 +301,24 @@ def Set_Alarm(channel, sensorname, organization, dashboard_name, user_login, set
 	else:
 		return "Invalid sensor name" #will appear in div
 		
-
-
-	try:
-		user_email = query_channels(channel)
-	except:
-		return  "Db Query error"
+	#try:
+	#	start_time = time.time()
+	#	user_email = query_channels(channel)
+	#	print("--- %s seconds query_channels set alarm---" % (time.time() - start_time))
+	#except:
+	#	return  "Db Query error"
 		
-
-	if user_email is not None: #so channel exists
+	user_email = None
+	if user_email is None: #so channel exists
 		try:
 			#will extract the json definition of this particular dashboard
 			#this fc already switches organization
+			start_time =  time.time()
 			print("Obtaining dashboard json")  
 			data=gr._get_dashboard_json(dashboard_name, organization) #collapsed has to be True for all rows!
 
+			print("--- %s seconds obtain dash ---" % (time.time() - start_time))
+			start_time = time.time()
 			data['dashboard']['panels'][pan_order]['panels'][0]['alert']['conditions'][0]['evaluator']['params'][0]= float(set_min_value)
 			data['dashboard']['panels'][pan_order]['panels'][0]['alert']['conditions'][0]['evaluator']['params'][1]= float(set_max_value)
 
@@ -329,7 +335,7 @@ def Set_Alarm(channel, sensorname, organization, dashboard_name, user_login, set
 			print("Uploading dashboard json")
 
 			status, uid = gr._update_existing_dashboard(data)
-
+			print("--- %s seconds update dash---" % (time.time() - start_time))
 			#todo:
 			# html file for setting alarms
 			# upload code to github and dockerhub and mainflux docker
