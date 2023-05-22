@@ -4,6 +4,6 @@ flask-mail==0.9.1
 paho-mqtt
 psycopg2
 uWSGI
-requests==2.23.0
+requests==2.31.0
 grafana_api==1.0.1
 PyJWT==1.7.1
